@@ -12,9 +12,10 @@ namespace CrossORM
     public class Service<TContext> : IDisposable, IService<TContext> where TContext : IContext
     {
         protected readonly TContext _context;
+        public Service([NotNull] TContext context) => _context = context;
+        protected ICrossSet<TEntity> DbSet<TEntity>() where TEntity : Entity<Guid> => _context.Set<TEntity>() as ICrossSet<TEntity>;
         protected bool Disposed { get; set; } = false;
         protected SafeHandle Handle { get; } = new SafeFileHandle(IntPtr.Zero, true);
-        public Service([NotNull] TContext context) => _context = context;
 
         #region getters
         /// <summary>
@@ -37,7 +38,7 @@ namespace CrossORM
         /// <param name="isreadonly"></param>
         /// <returns></returns>
         public IQueryable<TEntity> GetAll<TEntity>(bool isreadonly = false) where TEntity : Entity<Guid>
-         => isreadonly ? _context.CrossSet<TEntity>().AsNoTracking() : _context.CrossSet<TEntity>();
+         => isreadonly ? DbSet<TEntity>().AsNoTracking() : DbSet<TEntity>();
 
         /// <summary>
         /// Get all entities from database entity set, including desired navigation properties.
@@ -69,8 +70,8 @@ namespace CrossORM
             bool isreadonly = false) where TEntity : Entity<Guid>
         {
             // define if is readonly and will have no change-tracking
-            var query = (isreadonly ? _context.CrossSet<TEntity>().AsNoTracking()
-                                    : _context.CrossSet<TEntity>());
+            var query = (isreadonly ? DbSet<TEntity>().AsNoTracking()
+                                    : DbSet<TEntity>());
 
             foreach (var property in includes.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = (query as ICrossSet<TEntity>).Include(property);
@@ -94,7 +95,7 @@ namespace CrossORM
         /// <param name="entity"></param>
         /// <returns></returns>
         public TEntity Add<TEntity>([NotNull] TEntity entity) where TEntity : Entity<Guid>
-            => _context.CrossSet<TEntity>().Add(entity);
+            => DbSet<TEntity>().Add(entity);
 
         /// <summary>
         /// Add given entities to database entity set.
@@ -103,7 +104,7 @@ namespace CrossORM
         /// <param name="entities"></param>
         /// <returns></returns>
         public IEnumerable<TEntity> AddRange<TEntity>([NotNull] IEnumerable<TEntity> entities) where TEntity : Entity<Guid>
-            => _context.CrossSet<TEntity>().AddRange(entities);
+            => DbSet<TEntity>().AddRange(entities);
 
         /// <summary>
         /// Set given entity to be updated to database entity set.
@@ -133,7 +134,7 @@ namespace CrossORM
         /// <param name="entity"></param>
         /// <returns></returns>
         public TEntity Remove<TEntity>([NotNull] TEntity entity) where TEntity : Entity<Guid>
-            => _context.CrossSet<TEntity>().Remove(entity);
+            => DbSet<TEntity>().Remove(entity);
 
         /// <summary>
         /// Remove an entity from database entity set got by given key.
@@ -142,7 +143,7 @@ namespace CrossORM
         /// <param name="key"></param>
         /// <returns></returns>
         public TEntity Remove<TEntity>([NotNull] Guid key) where TEntity : Entity<Guid>
-            => _context.CrossSet<TEntity>().Remove(_context.CrossSet<TEntity>().Find(key));
+            => DbSet<TEntity>().Remove(DbSet<TEntity>().Find(key));
 
         /// <summary>
         /// Remove all given entities from database set.
@@ -151,7 +152,7 @@ namespace CrossORM
         /// <param name="entities"></param>
         /// <returns></returns>
         public IEnumerable<TEntity> RemoveRange<TEntity>([NotNull] IEnumerable<TEntity> entities) where TEntity : Entity<Guid>
-            => _context.CrossSet<TEntity>().RemoveRange(entities);
+            => DbSet<TEntity>().RemoveRange(entities);
 
         /// <summary>
         /// Remove all entities from database set with key in given keys.
@@ -161,13 +162,13 @@ namespace CrossORM
         /// <returns></returns>
         public IEnumerable<TEntity> RemoveRange<TEntity>([NotNull] IEnumerable<Guid> keys) where TEntity : Entity<Guid>
         {
-            var entities = _context.CrossSet<TEntity>()
+            var entities = DbSet<TEntity>()
                                    .Join(keys,
                                          entity => entity.Id,
                                          key => key,
                                          (entity, key) => entity);
 
-            return _context.CrossSet<TEntity>().RemoveRange(entities);
+            return DbSet<TEntity>().RemoveRange(entities);
         }
         #endregion
 

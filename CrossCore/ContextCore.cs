@@ -11,10 +11,10 @@ namespace CrossCore
 {
     public class ContextCore : DbContext, IContext
     {
-        public CoreSet<Customer> Customers { get; set; }
-        public CoreSet<Product> Products { get; set; }
-        public CoreSet<Order> Orders { get; set; }
-        public CoreSet<OrderProduct> OrderProducts { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderProduct> OrderProducts { get; set; }
         public ContextCore() { }
         public ContextCore(DbContextOptions<ContextCore> options) : base(options) { }
         public override int SaveChanges()
@@ -42,12 +42,7 @@ namespace CrossCore
         }
         public int Save() => SaveChanges();
         public Task<int> SaveAsync() => SaveChangesAsync();
-        public ICrossSet<TEntity> CrossSet<TEntity>() where TEntity : Entity<Guid>
-        {
-            var properties = GetType().GetProperties();
-            var setProperty = properties.Single(p => p.PropertyType == typeof(CoreSet<TEntity>));
-            return (ICrossSet<TEntity>)setProperty.GetValue(this);
-        }
+        dynamic IContext.Set<TEntity>() => base.Set<TEntity>();
         TEntity IContext.Update<TEntity>(TEntity entity) => Update<TEntity>(entity).Entity;
         IEnumerable<TEntity> IContext.UpdateRange<TEntity>(IEnumerable<TEntity> entities)
         {

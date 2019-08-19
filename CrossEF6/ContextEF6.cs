@@ -13,10 +13,10 @@ namespace CrossEF6
 {
     public class ContextEF6 : DbContext , IContext
     {
-        public EF6Set<Customer> Customers { get; set; }
-        public EF6Set<Product> Products { get; set; }
-        public EF6Set<Order> Orders { get; set; }
-        public EF6Set<OrderProduct> OrderProducts { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderProduct> OrderProducts { get; set; }
         public ContextEF6() : base("name=ContextEF6") { }
         /// <summary>
         /// Test only constructor.
@@ -57,12 +57,7 @@ namespace CrossEF6
         }
         public int Save() => SaveChanges();
         public Task<int> SaveAsync() => SaveChangesAsync();
-        public ICrossSet<TEntity> CrossSet<TEntity>() where TEntity : Entity<Guid>
-        {
-            var properties = GetType().GetProperties();
-            var setProperty = properties.Single(p => p.DeclaringType == typeof(EF6Set<TEntity>));
-            return (EF6Set<TEntity>)setProperty.GetValue(this);
-        }
+        dynamic IContext.Set<TEntity>() => base.Set<TEntity>();
         TEntity IContext.Update<TEntity>(TEntity entity)
         {
             Entry<TEntity>(entity).State = EntityState.Modified;
