@@ -1,15 +1,13 @@
-﻿using CrossORM;
-using CrossORM.Entities;
+﻿using CrossDomain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrossCore
 {
-    public class ContextCore : DbContext, IContext
+    public class ContextCore : DbContext
     {
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -40,15 +38,5 @@ namespace CrossCore
                 ((Entity<int>)entity.Entity).ModifiedDate = DateTime.UtcNow;
             }
         }
-        public int Save() => SaveChanges();
-        public Task<int> SaveAsync() => SaveChangesAsync();
-        dynamic IContext.Set<TEntity>() => base.Set<TEntity>();
-        TEntity IContext.Update<TEntity>(TEntity entity) => Update<TEntity>(entity).Entity;
-        IEnumerable<TEntity> IContext.UpdateRange<TEntity>(IEnumerable<TEntity> entities)
-        {
-            UpdateRange(entities);
-            return entities;
-        }
-        public void Rollback() => ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
     }
 }

@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CrossCore\CrossCore.csproj" />
-    <ProjectReference Include="..\CrossORM\CrossORM.csproj" />
+    <ProjectReference Include="..\CrossDomain\CrossDomain.csproj" />
   </ItemGroup>
 
 </Project>

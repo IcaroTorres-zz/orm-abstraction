@@ -1,7 +1,5 @@
-﻿using CrossORM;
-using CrossORM.Entities;
+﻿using CrossDomain.Entities;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
@@ -11,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace CrossEF6
 {
-    public class ContextEF6 : DbContext , IContext
+    public class ContextEF6 : DbContext
     {
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public ContextEF6() : base("name=ContextEF6") { }
+
         /// <summary>
         /// Test only constructor.
         /// </summary>
@@ -55,21 +54,5 @@ namespace CrossEF6
                 ((Entity<int>)entity.Entity).ModifiedDate = DateTime.UtcNow;
             }
         }
-        public int Save() => SaveChanges();
-        public Task<int> SaveAsync() => SaveChangesAsync();
-        dynamic IContext.Set<TEntity>() => base.Set<TEntity>();
-        TEntity IContext.Update<TEntity>(TEntity entity)
-        {
-            Entry<TEntity>(entity).State = EntityState.Modified;
-            return entity;
-        }
-        IEnumerable<TEntity> IContext.UpdateRange<TEntity>(IEnumerable<TEntity> entities)
-        {
-            foreach( var entity in entities)
-                Entry<TEntity>(entity).State = EntityState.Modified;
-
-            return entities;
-        }
-        public void Rollback() => ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
     }
 }

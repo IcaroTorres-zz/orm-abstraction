@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossORM.Entities
+namespace CrossDomain.Entities
 {
     public class Order : Entity<Guid>
     {
+        public Order() { }
         public Order(Customer costumer, ICollection<OrderProduct> orderProducts)
         {
             Customer = costumer;

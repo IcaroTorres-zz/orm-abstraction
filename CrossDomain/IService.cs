@@ -1,14 +1,16 @@
-﻿using CrossORM.Entities;
+﻿using CrossDomain.Entities;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace CrossORM
+namespace CrossDomain
 {
-    public interface IService<TContext> where TContext : IContext
+    public interface IService : IDisposable
     {
+        IDisposable Begin();
+
         #region getters
         TEntity Get<TEntity>([NotNull] Guid key, string includes = "", bool isreadonly = false) where TEntity : Entity<Guid>;
         IQueryable<TEntity> GetAll<TEntity>(bool isreadonly = false) where TEntity : Entity<Guid>;
@@ -36,9 +38,8 @@ namespace CrossORM
         #endregion
 
         #region finishers
-        int Save();
+        void Commit(bool dispose);
         void Rollback();
-        void Dispose(); // Public implementation of Dispose pattern callable by consumers.
         #endregion
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace CrossORM.Entities
+namespace CrossDomain.Entities
 {
-    public abstract class Entity<TKey>
+    public class Entity<TKey>
     {
         public TKey Id { get; set; }
         public bool IsDisabled { get; set; }

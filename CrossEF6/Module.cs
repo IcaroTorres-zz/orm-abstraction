@@ -1,9 +1,10 @@
-﻿using CrossORM.Entities;
-using CrossEF6;
+﻿using CrossEF6;
 using Ninject.Modules;
+using Ninject.Web.Common;
 using System.Data.Common;
+using System.Data.Entity;
 
-namespace CrossORM
+namespace CrossDomain
 {
     public class Module : NinjectModule
     {
@@ -19,11 +20,20 @@ namespace CrossORM
         /// </summary>
         public override void Load()
         {
+            Bind<DbContext>().To<ContextEF6>()
+                .InRequestScope()
+                .Named("EF6");
+            Bind<IService>().To<ServiceEF6>()
+                .InRequestScope()
+                .Named("EF6");
+
             #region conditional bindings
             if (_Environment.Equals("release", System.StringComparison.OrdinalIgnoreCase))
             {
-                Bind<IContext>().To<ContextEF6>().Named("EF6");
-                Bind<ContextEF6>().ToSelf().Named("EF6");
+
+                Bind<ContextEF6>().ToSelf()
+                    .InRequestScope()
+                    .Named("EF6");
             }
             else
             {
@@ -32,20 +42,18 @@ namespace CrossORM
                 if (_Environment.Equals("test", System.StringComparison.OrdinalIgnoreCase))
                 {
                     DonationConnection = Effort.DbConnectionFactory.CreateTransient();
-                    Bind<IContext>().ToMethod(c => new ContextEF6(DonationConnection)).Named("EF6" + _Environment);
-                    Bind<ContextEF6>().ToMethod(c => new ContextEF6(DonationConnection)).Named("EF6" + _Environment);
+                    Bind<ContextEF6>().ToMethod(c => new ContextEF6(DonationConnection))
+                                      .InRequestScope()
+                                      .Named("EF6" + _Environment);
                 }
                 else
                 {
                     DonationConnection = Effort.DbConnectionFactory.CreatePersistent("EF6" + _Environment);
-                    Bind<IContext>().ToMethod(c => new ContextEF6(DonationConnection)).Named("EF6" + _Environment);
-                    Bind<ContextEF6>().ToMethod(c => new ContextEF6(DonationConnection)).Named("EF6" + _Environment);
+                    Bind<ContextEF6>().ToMethod(c => new ContextEF6(DonationConnection))
+                                      .InRequestScope()
+                                      .Named("EF6" + _Environment);
                 }
             }
-            Bind<ICrossSet<Customer>>().To<EF6Set<Customer>>();
-            Bind<ICrossSet<Order>>().To<EF6Set<Order>>();
-            Bind<ICrossSet<Product>>().To<EF6Set<Product>>();
-            Bind<ICrossSet<OrderProduct>>().To<EF6Set<OrderProduct>>();
             #endregion
         }
     }

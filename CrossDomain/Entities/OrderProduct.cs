@@ -1,21 +1,22 @@
 ﻿using System;
 
-namespace CrossORM.Entities
+namespace CrossDomain.Entities
 {
     public class OrderProduct : Entity<Guid>
     {
+        public OrderProduct() { }
         public OrderProduct(ref Product product, int count)
         {
             Product = product;
             Count = count;
             AmountValue = Product.AmountValue;
-            Product.UpdateStoreCountTo(-1 * Count);
+            Product.UpdateStoreCountTo(Math.Abs(Count));
         }
         public OrderProduct(ref Product product, int count, decimal amountValue)
         {
             Product = product;
             Count = count;
-            Product.UpdateStoreCountTo(-1 * Count);
+            Product.UpdateStoreCountTo(Math.Abs(Count));
 
             if (amountValue <= 0)
                 throw new ArgumentException($"{nameof(amountValue)} cannot be zero or negative.", nameof(amountValue));

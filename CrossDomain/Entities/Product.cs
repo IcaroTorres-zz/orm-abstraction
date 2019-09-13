@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CrossORM.Entities
+namespace CrossDomain.Entities
 {
     public class Product : Entity<Guid>
     {
+        public Product() { }
         public Product(string name, int count)
         {
             UpdateName(name);
