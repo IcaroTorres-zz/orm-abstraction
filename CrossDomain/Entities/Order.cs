@@ -7,6 +7,7 @@ namespace CrossDomain.Entities
     public class Order : Entity<Guid>
     {
         public Order() { }
+        public new Guid Id { get; set; } = System.Guid.NewGuid();
         public Order(Customer costumer, ICollection<OrderProduct> orderProducts)
         {
             Customer = costumer;

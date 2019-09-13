@@ -19,7 +19,7 @@ namespace CrossEF6
         private DbTransaction ConnTransaction;
         private DbContextTransaction ContextTransaction;
 
-        public ServiceEF6(DbContext context) => Context = context;
+        public ServiceEF6([NotNull] DbContext context) => Context = context;
         public IDisposable Begin()
         {
             if (Context.Database.Connection is SqlConnection)
@@ -208,7 +208,8 @@ namespace CrossEF6
             if (disposing)
             {
                 Handle.Dispose();
-                Transaction?.Dispose();
+                ConnTransaction?.Dispose();
+                ContextTransaction?.Dispose();
                 Context.Dispose();
 
                 Disposed = true;
@@ -223,8 +224,10 @@ namespace CrossEF6
             try
             {
                 // commit transaction if there is one active
-                if (ConnTransaction != null || ContextTransaction != null)
-                    ConnTransaction ?? ContextTransaction != null
+                if (ConnTransaction != null)
+                    ConnTransaction.Commit();
+                else if (ContextTransaction != null)
+                    ContextTransaction.Commit();
                 else
                     Context.SaveChanges();
             }
@@ -244,8 +247,10 @@ namespace CrossEF6
         {
             try
             {
-                if (Transaction != null)
-                    Transaction.Rollback();
+                if (ConnTransaction != null)
+                    ConnTransaction.Rollback();
+                else if (ContextTransaction != null)
+                    ContextTransaction.Rollback();
                 else
                     Context.ChangeTracker.Entries().ToList().ForEach(x => x.Reload());
             }

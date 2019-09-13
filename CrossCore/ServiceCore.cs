@@ -2,6 +2,7 @@
 using CrossDomain.Entities;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace CrossCore
     public class ServiceCore : IDisposable, IService
     {
         protected readonly DbContext Context;
-        private IDisposable Transaction;
+        private IDbContextTransaction Transaction;
 
         public IDisposable Begin() => Transaction = Context.Database.BeginTransaction();
         public ServiceCore([NotNull] DbContext context) => Context = context;

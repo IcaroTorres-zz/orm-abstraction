@@ -21,10 +21,10 @@ namespace EF6Test
         [TestMethod]
         public async System.Threading.Tasks.Task GenericServiceTest()
         {
-            using (_service.Begin())
+            using (_service)
             {
-                // arrange
-                var customer = new Customer { Name = "dummy" };
+               // arrange
+               var customer = new Customer { Name = "dummy" };
                 var product1 = new Product("dummy product1", 35)
                 {
                     AmountValue = 29.30M,

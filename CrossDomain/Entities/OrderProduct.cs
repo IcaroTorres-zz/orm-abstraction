@@ -5,6 +5,7 @@ namespace CrossDomain.Entities
     public class OrderProduct : Entity<Guid>
     {
         public OrderProduct() { }
+        public new Guid Id { get; set; } = System.Guid.NewGuid();
         public OrderProduct(ref Product product, int count)
         {
             Product = product;

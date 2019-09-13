@@ -6,6 +6,7 @@ namespace CrossDomain.Entities
     public class Product : Entity<Guid>
     {
         public Product() { }
+        public new Guid Id { get; set; } = System.Guid.NewGuid();
         public Product(string name, int count)
         {
             UpdateName(name);
