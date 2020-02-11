@@ -1,3 +1,2 @@
-# Cross-ORM
-Abstraction implementation to be used as database Context injecting final most used ORMs in .NET development environments.
-Working, but still in progress...
+# ORM Abstraction
+Abstraction over .Net ORMs (Entity Framework 6 | Entity Core) as source of data.
