@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace CrossDomain.Entities
+namespace Data.Entities
 {
-    public class OrderProduct : Entity<Guid>
+    public class OrderProduct
     {
-        public OrderProduct() { }
-        public new Guid Id { get; set; } = System.Guid.NewGuid();
-        public OrderProduct(ref Product product, int count)
+        protected OrderProduct() { }
+        public OrderProduct(Product product, int count)
         {
             Product = product;
             Count = count;
             AmountValue = Product.AmountValue;
             Product.UpdateStoreCountTo(Math.Abs(Count));
         }
-        public OrderProduct(ref Product product, int count, decimal amountValue)
+        public OrderProduct(Product product, int count, decimal amountValue)
         {
             Product = product;
             Count = count;
@@ -24,6 +23,7 @@ namespace CrossDomain.Entities
 
             AmountValue = amountValue;
         }
+        public Guid Id { get; set; } = System.Guid.NewGuid();
         public decimal AmountValue { get; private set; }
         public int Count { get; private set; }
         public Guid OrderId { get; set; }

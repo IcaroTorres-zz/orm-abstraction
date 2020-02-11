@@ -76,13 +76,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CrossDomain\CrossDomain.csproj">
-      <Project>{afe6bd9d-d875-4e4e-b379-1238cd8c8b32}</Project>
-      <Name>CrossDomain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CrossEF6\CrossEF6.csproj">
+    <ProjectReference Include="..\Data.Concrete.EF6\Data.Concrete.EF6.csproj">
       <Project>{05747866-d7af-4153-8635-8d0abf10bf3a}</Project>
-      <Name>CrossEF6</Name>
+      <Name>Data.Concrete.EF6</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{3522dbc2-8625-44b6-b016-d69b1bce4c62}</Project>
+      <Name>Data</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

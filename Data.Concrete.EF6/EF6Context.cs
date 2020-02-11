@@ -1,4 +1,4 @@
-﻿using CrossDomain.Entities;
+﻿using Data.Entities;
 using System;
 using System.Data.Common;
 using System.Data.Entity;
@@ -7,24 +7,24 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace CrossEF6
+namespace Data.Concrete.EF6
 {
-    public class ContextEF6 : DbContext
+    public class EF6Context : DbContext
     {
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
-        public ContextEF6() : base("name=ContextEF6") { }
+        public EF6Context() : base("name=ContextEF6") { }
 
         /// <summary>
         /// Test only constructor.
         /// </summary>
         /// <param name="connection"></param>
-        public ContextEF6(DbConnection connection) : base(connection, true)
+        public EF6Context(DbConnection connection) : base(connection, true)
         {
             Configuration.LazyLoadingEnabled = false;
-            Database.SetInitializer(new DropCreateDatabaseAlways<ContextEF6>());
+            Database.SetInitializer(new DropCreateDatabaseAlways<EF6Context>());
         }
         public override int SaveChanges()
         {
@@ -44,14 +44,14 @@ namespace CrossEF6
         }
         private void AddAudit()
         {
-            var entities = ChangeTracker.Entries().Where(x => x.Entity is Entity<int> && (x.State == EntityState.Added || x.State == EntityState.Modified));
+            var entities = ChangeTracker.Entries().Where(x => x.Entity is Entity && (x.State == EntityState.Added || x.State == EntityState.Modified));
             foreach (var entity in entities)
             {
                 if (entity.State == EntityState.Added)
                 {
-                    ((Entity<int>)entity.Entity).CreatedDate = DateTime.UtcNow;
+                    ((Entity)entity.Entity).CreatedDate = DateTime.UtcNow;
                 }
-                ((Entity<int>)entity.Entity).ModifiedDate = DateTime.UtcNow;
+                ((Entity)entity.Entity).ModifiedDate = DateTime.UtcNow;
             }
         }
     }

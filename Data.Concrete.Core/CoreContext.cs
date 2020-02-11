@@ -1,20 +1,20 @@
-﻿using CrossDomain.Entities;
+﻿using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrossCore
+namespace Data.Concrete.Core
 {
-    public class ContextCore : DbContext
+    public class CoreContext : DbContext
     {
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
-        public ContextCore() { }
-        public ContextCore(DbContextOptions<ContextCore> options) : base(options) { }
+        public CoreContext() { }
+        public CoreContext(DbContextOptions<CoreContext> options) : base(options) { }
         public override int SaveChanges()
         {
             AddAudit();
@@ -27,15 +27,15 @@ namespace CrossCore
         }
         private void AddAudit()
         {
-            var entities = ChangeTracker.Entries().Where(x => x.Entity is Entity<int> && (x.State == EntityState.Added || x.State == EntityState.Modified));
+            var entities = ChangeTracker.Entries().Where(x => x.Entity is Entity && (x.State == EntityState.Added || x.State == EntityState.Modified));
             foreach (var entity in entities)
             {
                 if (entity.State == EntityState.Added)
                 {
-                    ((Entity<int>)entity.Entity).CreatedDate = DateTime.UtcNow;
+                    ((Entity)entity.Entity).CreatedDate = DateTime.UtcNow;
                 }
 
-                ((Entity<int>)entity.Entity).ModifiedDate = DateTime.UtcNow;
+                ((Entity)entity.Entity).ModifiedDate = DateTime.UtcNow;
             }
         }
     }

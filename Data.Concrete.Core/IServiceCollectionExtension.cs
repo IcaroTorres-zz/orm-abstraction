@@ -1,8 +1,9 @@
-﻿using CrossDomain;
+﻿using Data.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CrossCore
+namespace Data.Concrete.Core
 {
     public static class IServiceCollectionExtension
     {
@@ -10,11 +11,8 @@ namespace CrossCore
         {
             // your context dependency registration
             return services
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<ContextCore>(options => options.UseInMemoryDatabase("Coretest"))
-                .AddScoped<DbContext, ContextCore>()
-                .AddScoped<ContextCore>()
-                .AddScoped<IService, ServiceCore>();
+                .AddDbContext<CoreContext>(options => options.UseInMemoryDatabase("Coretest"))
+                .AddScoped<IDataSource, CoreSource>();
         }
     }
 }

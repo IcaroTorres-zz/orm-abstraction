@@ -1,10 +1,10 @@
-﻿using CrossEF6;
+﻿using Data.Abstractions;
+using Data.Concrete.EF6;
 using Ninject.Modules;
 using Ninject.Web.Common;
 using System.Data.Common;
-using System.Data.Entity;
 
-namespace CrossDomain
+namespace Data
 {
     public class Module : NinjectModule
     {
@@ -13,27 +13,19 @@ namespace CrossDomain
         /// Constructor for a class inheriting NinjectModule, used by Ninject kernel to bind dependencies.
         /// </summary>
         /// <param name="Environment">If true, set the module environment to test.</param>
-        public Module(string Environment = "release") => _Environment = Environment;
+        public Module(string Environment = "release")
+        {
+            _Environment = Environment;
+        }
 
         /// <summary>
         /// Load defined custom binders for a NinjectModule
         /// </summary>
         public override void Load()
         {
-            Bind<DbContext>().To<ContextEF6>()
-                .InRequestScope()
-                .Named("EF6");
-            Bind<IService>().To<ServiceEF6>()
-                .InRequestScope()
-                .Named("EF6");
-
-            #region conditional bindings
             if (_Environment.Equals("release", System.StringComparison.OrdinalIgnoreCase))
             {
-
-                Bind<ContextEF6>().ToSelf()
-                    .InRequestScope()
-                    .Named("EF6");
+                Bind<EF6Context>().ToSelf().InRequestScope().Named("EF6");
             }
             else
             {
@@ -42,19 +34,19 @@ namespace CrossDomain
                 if (_Environment.Equals("test", System.StringComparison.OrdinalIgnoreCase))
                 {
                     DonationConnection = Effort.DbConnectionFactory.CreateTransient();
-                    Bind<ContextEF6>().ToMethod(c => new ContextEF6(DonationConnection))
+                    Bind<EF6Context>().ToMethod(c => new EF6Context(DonationConnection))
                                       .InRequestScope()
                                       .Named("EF6" + _Environment);
                 }
                 else
                 {
                     DonationConnection = Effort.DbConnectionFactory.CreatePersistent("EF6" + _Environment);
-                    Bind<ContextEF6>().ToMethod(c => new ContextEF6(DonationConnection))
+                    Bind<EF6Context>().ToMethod(c => new EF6Context(DonationConnection))
                                       .InRequestScope()
                                       .Named("EF6" + _Environment);
                 }
             }
-            #endregion
+            Bind<IDataSource>().To<EF6Source>().InRequestScope().Named("EF6");
         }
     }
 }

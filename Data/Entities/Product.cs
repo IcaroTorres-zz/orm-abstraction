@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CrossDomain.Entities
+namespace Data.Entities
 {
-    public class Product : Entity<Guid>
+    public class Product
     {
-        public Product() { }
-        public new Guid Id { get; set; } = System.Guid.NewGuid();
+        protected Product() { }
+        public Guid Id { get; set; } = System.Guid.NewGuid();
         public Product(string name, int count)
         {
             UpdateName(name);

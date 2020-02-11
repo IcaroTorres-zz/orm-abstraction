@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrossDomain.Entities
+namespace Data.Entities
 {
-    public class Order : Entity<Guid>
+    public class Order
     {
         public Order() { }
-        public new Guid Id { get; set; } = System.Guid.NewGuid();
+        public Guid Id { get; set; } = System.Guid.NewGuid();
         public Order(Customer costumer, ICollection<OrderProduct> orderProducts)
         {
             Customer = costumer;

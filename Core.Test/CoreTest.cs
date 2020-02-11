@@ -1,30 +1,33 @@
-using CrossCore;
-using CrossDomain;
-using CrossDomain.Entities;
+using Data.Abstractions;
+using Data.Concrete.Core;
+using Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 
 namespace CoreTest
 {
     [TestClass]
     public class CoreTest
     {
-        private readonly IService _service;
+        private readonly IDataSource _source;
 
         public CoreTest()
         {
-            var options = new DbContextOptionsBuilder<ContextCore>()
+            var options = new DbContextOptionsBuilder<CoreContext>()
                 .UseInMemoryDatabase(databaseName: DateTime.UtcNow.Ticks.ToString())
+                .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
-            _service = new ServiceCore(new ContextCore(options));
+            _source = new CoreSource(new CoreContext(options));
         }
 
         [TestMethod]
-        public async System.Threading.Tasks.Task GenericServiceTest()
+        public void CoreSourceTest()
         {
-            using (_service)
+            using (var dataSource = _source.BeginTransaction())
             {
                 // arrange
                 var customer = new Customer { Name = "dummy" };
@@ -38,28 +41,34 @@ namespace CoreTest
                     AmountValue = 109.90M,
                     Description = "A dummy product 2 description"
                 };
-                var orderProduct1 = new OrderProduct(ref product1, 15);
-                var orderProduct2 = new OrderProduct(ref product2, 5);
+                var orderProduct1 = new OrderProduct(product1, 15);
+                var orderProduct2 = new OrderProduct(product2, 5);
                 var order = new Order(customer, new OrderProduct[] { orderProduct1, orderProduct2 });
 
                 // act
-                _service.Add<Customer>(customer);
-                _service.Add<Product>(product1);
-                _service.Add<Product>(product2);
-                _service.Add<OrderProduct>(orderProduct1);
-                _service.Add<OrderProduct>(orderProduct2);
-                _service.Add<Order>(order);
+                _source.Set<Customer>().Add(customer);
+                _source.Set<Product>().Add(product1);
+                _source.Set<Product>().Add(product2);
+                _source.Set<OrderProduct>().Add(orderProduct1);
+                _source.Set<OrderProduct>().Add(orderProduct2);
+                _source.Set<Order>().Add(order);
 
-                _service.Commit(false);
+                _source.CommitState();
 
-                var returnOrder = await _service.Find<Order>(o => o.CustomerId == customer.Id,
-                                                             includes: "Customer,OrderProducts",
-                                                             isreadonly: true).SingleAsync();
+                var returnOrder = _source.Set<Order>()
+                    .Where(o => o.CustomerId == customer.Id)
+                    .Include(o => o.Customer)
+                    .Include(o => o.OrderProducts)
+                    .AsNoTracking()
+                    .Single();
+
                 // assert
                 Assert.AreEqual(order.Id, returnOrder.Id);
                 Assert.AreEqual(order.TotalAmount, returnOrder.TotalAmount);
                 Assert.AreEqual(order.Customer.Name, returnOrder.Customer.Name);
                 Assert.AreEqual(order.OrderProducts.Count, returnOrder.OrderProducts.Count);
+
+                dataSource.CommitTransaction();
             }
         }
     }
